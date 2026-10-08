@@ -111,7 +111,12 @@ inline bool GetStableCrossProd(const Vector3<T>& a, const Vector3<T>& b,
   // "a" and "b" are closer than about 18 * DBL_ERR == 9 * DBL_EPSILON.
   // (80-bit precision can handle inputs as close as 2.5 * LDBL_EPSILON.)
   constexpr T T_ERR = rounding_epsilon<T>();
-  constexpr T kMinNorm =
+  // Not constexpr on ppc64: gcc can't constant-fold IBM double-double
+  // long double division (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=19779).
+#if !defined(__PPC64__)
+  constexpr
+#endif
+  T kMinNorm =
       (32 * kSqrt3 * DBL_ERR) /
       (kRobustCrossProdError.radians() / T_ERR - (1 + 2 * kSqrt3));
 
@@ -454,7 +459,12 @@ static bool GetIntersectionSimple(const Vector3<T>& a0, const Vector3<T>& a1,
 
   constexpr T T_ERR = rounding_epsilon<T>();
   constexpr T kMinNormalLength = (16 * kSqrt3 + 24) * DBL_ERR;
-  constexpr T kMinResultLen =
+  // Not constexpr on ppc64: gcc can't constant-fold IBM double-double
+  // long double division (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=19779).
+#if !defined(__PPC64__)
+  constexpr
+#endif
+  T kMinResultLen =
       12 / (kIntersectionError.radians() / T_ERR - (2 + 2 * kSqrt3));
 
   // On some platforms "long double" is the same as "double", and on these
